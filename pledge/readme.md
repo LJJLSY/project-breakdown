@@ -32,4 +32,11 @@ gorm框架提供mysql、redis等db连接
 定时将链上信息同步到数据库，包括池子基本信息、统计数据信息、代币信息和预言机价格，以及监控链上BNB余额发邮件告警等等  
 定时将plgr价格更新到预言机  
 **其它模块**  
-中间件记录日志、jwt登录校验、gin框架的binding标签验证前端输入是否合法、...
+中间件记录日志、jwt登录校验、gin框架的binding标签验证前端输入是否合法、...  
+
+# 从业务角度分析代码实现  
+从业务角度看，代码实现的核心逻辑是“链上状态机驱动 + 链下数据服务支撑”，合约负责“定业务规则、管钱、算账”，后端负责“喂预言机价格、数据同步、做展示”  
+**1. 质押池的生命周期管理（状态机模式）**  
+**业务需求**：池子有MATCH、EXCUTION、FINISH、LIQUIDATION、UNDONE五个状态流转  
+**代码实现思路**：使用enum PoolState { MATCH, EXECUTION, FINISH, LIQUIDATION, UNDONE }定义状态枚举，默认状态是MATCH，存款、取款、退款、结算、完成、清算等关键步骤每个开头都要有require(pool.state == ？）状态检查。由settleTime触发结算，endTime触发完成，阈值监控触发清算  
+
