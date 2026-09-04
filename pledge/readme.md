@@ -16,7 +16,7 @@
 <img width="1326" height="810" alt="image" src="https://github.com/user-attachments/assets/9abbb730-e6da-4201-99f7-6a8dad4c1cb0" />
 
 # 主要模块职责  
-**config**  
+**config模块**  
 存放配置文件和配置管理代码  
 **数据存储**  
 mysql提供链上信息的数据存储，近期或历史数据管理和查看  
