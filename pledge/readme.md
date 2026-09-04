@@ -14,3 +14,13 @@
 
 # 后端流程  
 <img width="1326" height="810" alt="image" src="https://github.com/user-attachments/assets/9abbb730-e6da-4201-99f7-6a8dad4c1cb0" />
+
+# 主要模块职责  
+**config**  
+存放配置文件和配置管理代码  
+**数据存储**  
+mysql提供链上信息的数据存储，近期或历史数据管理和查看  
+redis提供数据缓存和数据变更校验  
+gorm框架提供mysql、redis等db连接  
+**路由模块**  
+用gin框架提供api接口与前端交互，通过数据库查看链上信息
