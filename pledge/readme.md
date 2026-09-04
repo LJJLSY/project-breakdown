@@ -39,4 +39,7 @@ gorm框架提供mysql、redis等db连接
 **1. 质押池的生命周期管理（状态机模式）**  
 **业务需求**：池子有MATCH、EXCUTION、FINISH、LIQUIDATION、UNDONE五个状态流转  
 **代码实现思路**：使用enum PoolState { MATCH, EXECUTION, FINISH, LIQUIDATION, UNDONE }定义状态枚举，默认状态是MATCH，存款、取款、退款、结算、完成、清算等关键步骤每个开头都要有require(pool.state == ？）状态检查。由settleTime触发结算，endTime触发完成，阈值监控触发清算  
+**2. 结算与资产确认（双向握手）**  
+**业务需求**：双方都存钱才能开始，否则退款（UNDONE）  
+**代码实现思路**：合约要先定义池子的基本信息结构体和数据信息结构体，以及借贷双方的数据结构体，在创建池子时初始化池子的参数和借贷双方的数据参数。定义deposit函数存款，合约记录用户的存款数量和池子总的存款数量到相应的结构体中。定义settle函数结算，读取双方的存款数量，如果都有存款则锁定资金，开始计息，状态置为EXCUTION；如果任一方没有存款，则允许用户紧急提取，状态置为UNDONE  
 
