@@ -46,6 +46,11 @@ Pausable: 暂停功能
 6、批量撮合订单  
 使用delegatecall执行步骤5进行批量撮合，如果撮合失败，记录事件但不回滚，如果撮合成功，判断是否买家发起的撮合，买家发起撮合就累积已花费的ETH，批量撮合完，如果传入的ETH多于实际需要的金额，退回多余的ETH  
 
+7、聚合调用多个操作（单笔交易内串联多个操作）  
+支持的操作：makeOrders、cancelOrders、editOrders、matchOrder、matchOrders。要验证调用的函数是否在其中  
+由于delegatecall下每个子调用看到的msg.value相同，为避免资金语义歧义，一次聚合调用最多允许1个“可能消耗msg.value”的子调用  
+根据revertOnFail参数决定策略：为true时任一失败将整笔回滚；为false时仅记录失败并继续  
+
 # 后端流程  
 
 
