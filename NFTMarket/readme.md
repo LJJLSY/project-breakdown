@@ -52,6 +52,7 @@ Pausable: 暂停功能
 根据revertOnFail参数决定策略：为true时任一失败将整笔回滚；为false时仅记录失败并继续  
 
 # 后端流程  
+<img width="1161" height="488" alt="image" src="https://github.com/user-attachments/assets/73390884-f2fe-4695-8a7a-ec9fb61a87f7" />
 
 
 # 主要模块职责  
