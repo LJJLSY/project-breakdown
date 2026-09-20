@@ -72,3 +72,35 @@ Admin处理Admin权限数据
 用轮询+事件日志解析的方式同步链上数据到数据库，可以批量同步过去时间指定范围的区块  
 
 # 从业务角度分析代码实现  
+1、合约升级：  
+使用Initializable、OwnableUpgradeable、UUPSUpgradeable实现合约的可升级结构，核心合约如OrderBook、Vault都支持UUPS升级方式  
+
+2、批量创建订单：  
+传入Order结构体数组，用for循环对每个Order都执行makeOrder函数操作，makeOrder函数返回OrderKey。makeOrder函数操作前判断Order的side，如果是Bid订单，计算该订单需要的ETH（即buyPrice）：单价X数量，将buyPrice一起传入makeOrder函数。如果创建成功，则OrderKey有效不是哨兵值，累计每个Bid订单的buyPrice，否则创建失败，ETH会被退回。  
+执行makeOrder函数时：  
+先验证订单规则，验证通过则将order进行hash作为订单的唯一标识；然后验证订单数量（List订单限制数量为1，Bid订单数量不能为0），然后再调用Vault合约的depositNFT或depositETH函数将NFT或ETH存入金库，然后调用Storage合约的addOrder函数将订单存入订单存储，存入订单存储的过程要用到红黑树进行价格档排序（价格优先，时间优先）。如果订单创建失败，则跳过发出跳过该订单事件  
+最后如果传入的ETH多于实际所需金额，退回多余部分    
+
+3、批量取消订单  
+只有订单创建者可以取消自己的订单，并且订单必须未完全成交，否则跳过订单，取消订单时从订单存储Storage合约中移除订单。对于List订单，从金库提取NFT返回给创建者；对于Bid订单，从金库提取未成交部分的ETH返回给创建者  
+
+4、批量编辑订单  
+编辑订单实际是先取消旧订单再创建新订单的过程  
+编辑限制检查：saleKind、side、maker、nft（collection和tokenId）必须与旧订单一致，只能修改价格price和数量amount，订单不能已完全成交  
+新订单验证：新订单的maker必须是调用者，salt不能为0，过期时间必须有效（大于当前时间或为0），新订单不能已被取消或完全成交  
+验证完先取消旧订单再创建新订单  
+资产处理：对于List订单：直接更新金库中的NFT关联；对于Bid订单：如果新价格更高：需要补足差额ETH，如果新价格更低：金库会退回多余ETH  
+
+5、撮合单个订单  
+要验证sellOrder订单和buyOrder是否匹配，只有匹配才能撮合  
+支持两种撮合场景：  
+*卖家接受出价：sellOrder.maker调用，验证buyOrder，要求Bid订单必须存在于订单存储中，此时成交价格为Bid订单的价格，然后更新成交数量，进行资产转移，从金库提取ETH到OrderBook合约，扣除手续费后转给卖家，NFT则从卖家转移到买家  
+*买家接受挂单：buyOrder.maker调用，验证sellOrder，要求List订单必须存在于订单存储中，此时成交价格为List订单的价格，然后更新成交数量，进行资产转移，从金库提取ETH到OrderBook合约，扣除手续费后转给卖家，NFT则从卖家转移到买家。如果买家出价高于成交价，退回多余ETH，如果买家传入的ETH高于实际花费的ETH金额，退回多余ETH  
+
+6、批量撮合订单  
+使用delegatecall执行步骤5进行批量撮合，如果撮合失败，记录事件但不回滚，如果撮合成功，判断是否买家发起的撮合，买家发起撮合就累积已花费的ETH，批量撮合完，如果传入的ETH多于实际需要的金额，退回多余的ETH  
+
+7、聚合调用多个操作（单笔交易内串联多个操作）  
+支持的操作：makeOrders、cancelOrders、editOrders、matchOrder、matchOrders。要验证调用的函数是否在其中  
+由于delegatecall下每个子调用看到的msg.value相同，为避免资金语义歧义，一次聚合调用最多允许1个“可能消耗msg.value”的子调用  
+根据revertOnFail参数决定策略：为true时任一失败将整笔回滚；为false时仅记录失败并继续
