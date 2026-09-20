@@ -78,10 +78,12 @@ Admin处理Admin权限数据
 2、批量创建订单：  
 传入Order结构体数组，用for循环对每个Order都执行makeOrder函数操作，makeOrder函数返回OrderKey。makeOrder函数操作前判断Order的side，如果是Bid订单，计算该订单需要的ETH（即buyPrice）：单价X数量，将buyPrice一起传入makeOrder函数。如果创建成功，则OrderKey有效不是哨兵值，累计每个Bid订单的buyPrice，否则创建失败，ETH会被退回。  
 执行makeOrder函数时：  
-先验证订单规则，验证通过则将order进行hash作为订单的唯一标识；然后验证订单数量（List订单限制数量为1，Bid订单数量不能为0），然后再调用Vault合约的depositNFT或depositETH函数将NFT或ETH存入金库，然后调用Storage合约的addOrder函数将订单存入订单存储，存入订单存储的过程要用到红黑树进行价格档排序（价格优先，时间优先）。如果订单创建失败，则跳过发出跳过该订单事件  
+先验证订单规则，验证通过则将order进行hash为OrderKey作为订单的唯一标识；然后验证订单数量（List订单限制数量为1，Bid订单数量不能为0），然后再调用Vault合约的depositNFT或depositETH函数将OrderKey和资产（NFT或ETH）存入金库，然后调用Storage合约的addOrder函数将订单存入订单存储，存入订单存储的过程要用到红黑树进行价格档排序（价格优先，时间优先）。如果订单创建失败，则跳过发出跳过该订单事件  
 最后如果传入的ETH多于实际所需金额，退回多余部分    
 
-3、批量取消订单  
+3、批量取消订单（即创建订单的反向操作）  
+传入OrderKeys数组
+
 只有订单创建者可以取消自己的订单，并且订单必须未完全成交，否则跳过订单，取消订单时从订单存储Storage合约中移除订单。对于List订单，从金库提取NFT返回给创建者；对于Bid订单，从金库提取未成交部分的ETH返回给创建者  
 
 4、批量编辑订单  
