@@ -85,6 +85,8 @@ Admin处理Admin权限数据
 传入OrderKey数组，用OrderKey获取对应订单，验证订单是否满足取消规则，然后调用Storage合约的removeOrder函数移除订单，再调用Vault合约的withdrawNFT或withdrawETH提取资产（其中Bid订单要按未成交数量计算可提取的ETH），然后调用Storage合约的cancelOrder标记订单已取消，如果取消失败，发出跳过事件  
 
 4、批量编辑订单  
+传入旧订单标识oldOrderKey和newOrder，用oldOrderKey获取旧订单，进行编辑限制检查和新订单验证后，调用Storage合约的removeOrder和cancelOrder函数移除订单，
+
 编辑订单实际是先取消旧订单再创建新订单的过程  
 编辑限制检查：saleKind、side、maker、nft（collection和tokenId）必须与旧订单一致，只能修改价格price和数量amount，订单不能已完全成交  
 新订单验证：新订单的maker必须是调用者，salt不能为0，过期时间必须有效（大于当前时间或为0），新订单不能已被取消或完全成交  
