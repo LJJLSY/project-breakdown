@@ -1,5 +1,5 @@
 # 项目整体架构图  
-<img width="978" height="612" alt="image" src="https://github.com/user-attachments/assets/48048cc5-715e-4358-8a9a-f91462ba7672" />
+<img width="867" height="612" alt="image" src="https://github.com/user-attachments/assets/443fec9b-71df-4b8a-acf0-df49501f2537" />
 
 
 # 核心业务流程  
