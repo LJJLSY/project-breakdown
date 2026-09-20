@@ -82,9 +82,7 @@ Admin处理Admin权限数据
 最后如果传入的ETH多于实际所需金额，退回多余部分    
 
 3、批量取消订单（即创建订单的反向操作）  
-传入OrderKeys数组
-
-只有订单创建者可以取消自己的订单，并且订单必须未完全成交，否则跳过订单，取消订单时从订单存储Storage合约中移除订单。对于List订单，从金库提取NFT返回给创建者；对于Bid订单，从金库提取未成交部分的ETH返回给创建者  
+传入OrderKey数组，用OrderKey获取对应订单，验证订单是否满足取消规则，然后调用Storage合约的removeOrder函数移除订单，再调用Vault合约的withdrawNFT或withdrawETH提取资产（其中Bid订单要按未成交数量计算可提取的ETH），然后调用Storage合约的cancelOrder标记订单已取消，如果取消失败，发出跳过事件  
 
 4、批量编辑订单  
 编辑订单实际是先取消旧订单再创建新订单的过程  
