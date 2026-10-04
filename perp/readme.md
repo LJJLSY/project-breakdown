@@ -14,6 +14,12 @@
 存放postgres、redis、rpc、Markets、MatchEngine撮合引擎、FundingRate、Liquidator、Chainlink、USDC 转收款地址、Coinbase等配置  
 **数据存储**  
 postgres存储链上的数据进行持久化，redis存储缓存数据  
+**USDC Transfer监听**  
+用轮询+事件日志解析的方式同步链上USDC Transfer(to是链上USDC转收款接收地址)事件的数据，写入数据库里deposits表并累加ledger_balances表，可以批量同步过去时间指定范围的区块  
+**IndexPrice监听**  
+连接Coinbase交易所获取指数价，写入数据库market_quotes表  
+**MarketWebSocket**  
+注册API定时从链上刷新各市场价格（链上标记价）  
 **路由模块**  
 按account、funding、liquidation、market、order、position、trade等分成多个Group handler  
 account查询账户余额、存款记录、取款记录  
