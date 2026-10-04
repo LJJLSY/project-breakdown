@@ -6,21 +6,23 @@
   
 
 # 后端流程  
-<img width="1161" height="488" alt="image" src="https://github.com/user-attachments/assets/73390884-f2fe-4695-8a7a-ec9fb61a87f7" />  
+<img width="1197" height="819" alt="image" src="https://github.com/user-attachments/assets/3b6867e8-7c3d-4e64-a4aa-1acdbde0f51b" />
+  
 
 # 主要模块职责  
 **config模块**  
-存放mysql、redis、rpc及其他配置  
+存放postgres、redis、rpc、Markets、MatchEngine撮合引擎、FundingRate、Liquidator、Chainlink、USDC 转收款地址、Coinbase等配置  
 **数据存储**  
-mysql存储链上的数据进行持久化，redis存储缓存数据  
+postgres存储链上的数据进行持久化，redis存储缓存数据  
 **路由模块**  
-经Sync模块将链上数据同步到数据库后，由Api路由获取给到前端  
-按Collection、Use、Order、Activity、Admin等分成多个Group handler  
-Collection处理Collection的详细数据，指定Collection的item列表或指定item数据，以及Collection相关其他数据  
-User处理User相关的Collection、item数据以及login  
-Order处理User相关的bid、list数据，以及Collection的bid、list数据，Collection指定item的bid、list数据  
-Activity处理Activities数据  
-Admin处理Admin权限数据  
+按account、funding、liquidation、market、order、position、trade等分成多个Group handler  
+account查询账户余额、存款记录、取款记录  
+funding获取资金费率历史  
+liquidation获取清算记录  
+market获取K线数据、所有市场及市场详情、深度、行情等数据  
+order创建订单、查询订单列表、查询订单、取消订单  
+position查询仓位和风险信息  
+trade查询交易记录  
 **Sync模块**  
 用轮询+事件日志解析的方式同步链上数据到数据库，可以批量同步过去时间指定范围的区块  
 
