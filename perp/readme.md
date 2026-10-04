@@ -19,7 +19,7 @@ postgres存储链上的数据进行持久化，redis存储缓存数据
 **IndexPrice监听**  
 连接Coinbase交易所获取指数价，写入数据库market_quotes表  
 **MarketWebSocket**  
-注册API定时从链上刷新各市场价格（链上标记价）  
+注册API定时从链上预言机刷新各市场价格（链上标记价）  
 **路由模块**  
 按account、funding、liquidation、market、order、position、trade等分成多个Group handler  
 account查询账户余额、存款记录、取款记录  
