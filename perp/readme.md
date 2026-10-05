@@ -59,4 +59,6 @@ trade查询交易记录
 多空双方用户存入保证金后，在链下构建订单并签名，由撮合引擎匹配订单生成matchResult，然后构建tradeData交易信息，调用perpetual合约的trade函数提交到链上进行结算，trade函数会调用dealer合约的approveTrade函数，在里面验证：orderSender权限、订单签名 (EIP-712)、检查订单未过期，验证通过后计算并扣除手续费，返回交易结果给perpetual合约，perpetual合约再根据交易结果更新双方余额（paper和credit）。  
 有仓位后链下Keeper定期（每8小时一次）获取标记价（MarketWebSocket获取的价格）与指数价（IndexPrice）差计算 delta，然后加上通过perpetual合约获取的旧资金费率，算出新资金费率，调用 dealer合约的updateFundingRate，updateFundingRate会调用perpetual合约的updateFundingRate更新该合约市场的资金费率  
 
-3、清算/平仓流程
+3、清算/平仓流程  
+由链下的清算机器人周期性检测可清算仓位，调用dealer合约的isSafe函数验证仓位是否安全，如果保证金低于维持保证金数量则为不安全，则调用perpetual合约的liquidate函数进行清算，里面会调用dealer合约的requestLiquidation函数计算清算价格，返回清算人获得的credit以及保险费，然后liquidate函数执行清算，余额变更：被清算者: paper减少, credit增加(清算价)，清算人: paper增加, credit减少(清算价)，保险账户: 收到保险费  
+如果一直没有触发清算，用户可以主动平仓  
