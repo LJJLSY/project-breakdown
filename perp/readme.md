@@ -1,4 +1,5 @@
 # 项目整体架构图  
+<img width="1077" height="612" alt="image" src="https://github.com/user-attachments/assets/12b10aef-0f6c-4700-9f75-c1088591cf2e" />  
 
 
 
