@@ -7,7 +7,7 @@
 <img width="1200" height="710" alt="image" src="https://github.com/user-attachments/assets/d1a8ab9b-5c30-468f-8a52-528b02704486" />  
 1、资金流程  
 
-用户通过USDC合约将保证金存入dealer合约，dealer合约将用户的primaryCredit和secondaryCredit主次资产增加记账。  
+用户通过USDC合约将保证金存入dealer合约，dealer合约将用户的primaryCredit或secondaryCredit主次资产增加记账。  
 取款时用户发起请求取款，等待时间锁到达才能执行取款；如果是白名单用户，可以用快速取款直接取不用等待时间锁。  
 
 2、交易流程  
@@ -49,3 +49,11 @@ trade查询交易记录
 资金费率结算，用标记价（MarketWebSocket获取的价格）与指数价（IndexPrice）差计算 delta，配置周期调用链上Dealer.updateFundingRate，再把更新记录入库  
 
 # 从业务角度分析代码实现  
+1、资金流程  
+用户先调用USDC合约的approve函数授权dealer合约足够的额度，然后调用dealer合约的deposit函数将保证金存入dealer合约，deposit函数里面会调用USDC合约的transferFrom函数将用户的存入保证金数量转到dealer合约，并在primaryCredit或secondaryCredit主次资产余额中增加记账，完成存款保证金流程  
+取款时用户调用dealer合约的requestWithdraw函数发起请求取款，如果是普通用户，需要等待时间锁到达才能执行取款，执行取款时调用dealer合约的executeWithdraw函数，要先验证msg.sender是不是本人或者有授权的人取款，然后可以根据需要确定是否实际执行转账，可以传入一个isInternal，如果为true则调用safetransfer实际转账，如果为false则不实际转账，只在dealer合约内部变更primaryCredit或secondaryCredit主次资产余额的记账用户，以此减少gas消耗；如果是白名单用户，可以调用dealer合约的fastWithdraw函数快速取款，直接执行取款不用等待时间锁，但是也要先验证msg.sender是不是本人或者有授权的人取款。  
+
+2、交易流程  
+
+
+3、清算/平仓流程
