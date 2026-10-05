@@ -55,6 +55,7 @@ trade查询交易记录
 取款时用户调用dealer合约的requestWithdraw函数发起请求取款，如果是普通用户，需要等待时间锁到达才能执行取款，执行取款时调用dealer合约的executeWithdraw函数，要先验证msg.sender是不是本人或者有授权的人取款，然后可以根据需要确定是否实际执行转账，可以传入一个isInternal，如果为true则调用safetransfer实际转账，如果为false则不实际转账，只在dealer合约内部变更primaryCredit或secondaryCredit主次资产余额的记账用户，以此减少gas消耗；如果是白名单用户，可以调用dealer合约的fastWithdraw函数快速取款，直接执行取款不用等待时间锁，但是也要先验证msg.sender是不是本人或者有授权的人取款。  
 
 2、交易流程  
-
+多空双方用户存入保证金后，在链下构建订单并签名，由撮合引擎匹配订单生成matchResult，然后构建tradeData交易信息，调用perpetual合约的trade函数提交到链上进行结算，trade函数会调用dealer合约的approveTrade函数，在里面验证：orderSender权限、订单签名 (EIP-712)、检查订单未过期，验证通过后计算并扣除手续费，返回交易结果给perpetual合约，perpetual合约再根据交易结果更新双方余额（paper和credit）。  
+有仓位后链下Keeper定期（每8小时一次）获取标记价（MarketWebSocket获取的价格）与指数价（IndexPrice）差计算 delta，然后加上通过perpetual合约获取的旧资金费率，算出新资金费率，调用 dealer合约的updateFundingRate，updateFundingRate会调用perpetual合约的updateFundingRate更新该合约市场的资金费率  
 
 3、清算/平仓流程
