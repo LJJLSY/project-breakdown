@@ -4,7 +4,7 @@
 
 
 # 核心业务流程  
-<img width="1200" height="710" alt="image" src="https://github.com/user-attachments/assets/d1a8ab9b-5c30-468f-8a52-528b02704486" />  
+<img width="1188" height="771" alt="image" src="https://github.com/user-attachments/assets/8963efb7-9d36-4195-9f86-a1cc8052c14b" />  
 1、资金流程  
 
 用户通过USDC合约将保证金存入dealer合约，dealer合约将用户的primaryCredit或secondaryCredit主次资产增加记账。  
