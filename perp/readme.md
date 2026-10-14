@@ -91,4 +91,28 @@ trade查询交易记录
 结算：$10000-$833.5-$2.75-$4.58=$159.17  
   
 爆亏平仓计算跟少亏同理
-被清算没有手续费，但是要额外扣清算罚金
+被清算没有手续费，但是要额外扣清算罚金  
+  
+清算价格计算：  
+为避免清算，需要：netValue >= maintenanceMargin  
+
+首先计算除目标市场外其他市场的 maintenanceMargin'  
+然后计算账户的 netValue'  
+
+则有：
+netValue' + paperAmount * price + creditAmount >= maintenanceMargin' + abs(paperAmount) * price * liquidationThreshold  
+  
+如果 paperAmount > 0（多头）：  
+paperAmount * price * (1-liquidationThreshold) >= maintenanceMargin' - netValue' - creditAmount  
+price >= (maintenanceMargin' - netValue' - creditAmount)/paperAmount/(1-liquidationThreshold)  
+清算价格 = (maintenanceMargin' - netValue' - creditAmount)/paperAmount/(1-liquidationThreshold)  
+
+如果 paperAmount < 0（空头）：  
+paperAmount * price * (1+liquidationThreshold) >= maintenanceMargin' - netValue' - creditAmount  
+price <= (maintenanceMargin' - netValue' - creditAmount)/paperAmount/(1+liquidationThreshold)  
+清算价格 = (maintenanceMargin' - netValue' - creditAmount)/paperAmount/(1+liquidationThreshold)  
+  
+设 multiplier = 1 ± liquidationThreshold  
+则：清算价格 = (maintenanceMargin' - netValue' - creditAmount)/paperAmount/multiplier  
+  
+如果清算价格 < 0，表示绝对安全或已被清算
