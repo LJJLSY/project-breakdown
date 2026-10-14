@@ -29,6 +29,7 @@
 postgres存储链上的数据进行持久化，redis存储缓存数据  
 **USDC Transfer监听**  
 用轮询+事件日志解析的方式同步链上USDC Transfer(to是链上USDC转收款接收地址)事件的数据，写入数据库里deposits表并累加ledger_balances表，可以批量同步过去时间指定范围的区块  
+这里to是链上USDC转收款接收地址，不是dealer合约地址，为防止用户在链上已经存钱了但是不能交易（dealer的primaryCredit仍为0），需要再将USDC转收款接收地址的钱转到dealer合约  
 **IndexPrice监听**  
 连接Coinbase交易所获取指数价，写入数据库market_quotes表  
 **MarketWebSocket**  
